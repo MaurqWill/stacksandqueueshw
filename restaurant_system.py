@@ -31,7 +31,6 @@ class KitchenOrderStack:
             print(f"Order ID: {current.order_id}, Details: {current.details}")
             current = current.next
 
-
 class CustomerOrderNode:
     def __init__(self, order_id, details, priority):
         self.order_id = order_id
@@ -42,24 +41,26 @@ class CustomerOrderNode:
 class CustomerOrderQueue:
     def __init__(self):
         self.front = None
-        self.rear = None
 
     def enqueue(self, order_id, details, priority):
         new_order = CustomerOrderNode(order_id, details, priority)
-        if self.rear is None:
+
+        # Insert in priority order (lower number = higher priority)
+        if self.front is None or self.front.priority > priority:
+            new_order.next = self.front
             self.front = new_order
-            self.rear = new_order
         else:
-            self.rear.next = new_order
-            self.rear = new_order
+            current = self.front
+            while current.next is not None and current.next.priority <= priority:
+                current = current.next
+            new_order.next = current.next
+            current.next = new_order
 
     def dequeue(self):
         if self.front is None:
             return "No orders to process"
         removed_order = self.front
         self.front = self.front.next
-        if self.front is None:
-            self.rear = None
         return removed_order
 
     def peek(self):
@@ -74,30 +75,26 @@ class CustomerOrderQueue:
             current = current.next
 
 
+# Kitchen stack operations
 kitchen_stack = KitchenOrderStack()
-
-# Adding orders to the kitchen queue
 kitchen_stack.push(1, "Burger and Fries")
 kitchen_stack.push(2, "Pasta")
 kitchen_stack.push(3, "Salad")
-
 
 print("Kitchen Orders:")
 kitchen_stack.display()
 
 # Removing completed orders
-
 completed_order = kitchen_stack.pop()
 print(f"Completed Order: {completed_order.order_id} - {completed_order.details}")
 
 print("Orders to Complete:")
 kitchen_stack.display()
 
+# Customer queue operations
 customer_queue = CustomerOrderQueue()
-
-# Adding orders to the customer queue
-customer_queue.enqueue(1, "Burger and Fries", 2)
-customer_queue.enqueue(2, "Pasta", 1)
+customer_queue.enqueue(1, "Burger and Fries", 1)
+customer_queue.enqueue(2, "Pasta", 2)
 customer_queue.enqueue(3, "Salad", 3)
 
 print("Customer Orders:")
